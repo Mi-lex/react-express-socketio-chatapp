@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { Container, Paper } from '@material-ui/core'
 import PageHeader from './components/PageHeader'
 import HomeScreen from './pages/HomeScreen'
+import ChatRoom from './pages/ChatRoom'
 
 const App = () => {
 	const [userName, setUserName] = useState(
@@ -17,6 +18,9 @@ const App = () => {
 					<Switch>
 						<Route path="/" exact>
 							<HomeScreen userName={userName} setUserName={setUserName} />
+						</Route>
+						<Route path="/chatroom/:chatroomId?">
+							<ChatRoom userName={userName} />
 						</Route>
 					</Switch>
 				</Paper>
