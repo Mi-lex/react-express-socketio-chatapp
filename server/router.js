@@ -8,7 +8,7 @@ class Router {
 	}
 
 	_setup() {
-		this.app.get('/chatrooms', this.controllers.chatRoom.getRandom)
+		this.app.get('/chatrooms/random', this.controllers.chatRoom.getRandom)
 	}
 }
 
