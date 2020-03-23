@@ -19,7 +19,7 @@ const App = () => {
 						<Route path="/" exact>
 							<HomeScreen userName={userName} setUserName={setUserName} />
 						</Route>
-						<Route path="/chatroom/:chatroomId?">
+						<Route path="/chatroom/:chatRoomId?">
 							<ChatRoom userName={userName} />
 						</Route>
 					</Switch>

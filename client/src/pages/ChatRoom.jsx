@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import api from '../services'
 import { Redirect, useParams } from 'react-router-dom'
 import { Box, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
@@ -16,8 +17,21 @@ const useStyles = makeStyles((theme) => ({
 const ChatRoom = ({ userName }) => {
 	const [users, setUsers] = useState([])
 	const [messages, setMessages] = useState([])
-	const classes = useStyles()
+	const [generatedRoomId, setGeneratedRoomId] = useState('')
 	const { chatRoomId } = useParams()
+	const classes = useStyles()
+
+	useEffect(() => {
+		if (!chatRoomId) {
+			api
+				.get('chatrooms/random')
+				.then((response) => {
+					const { roomId } = response.data
+					setGeneratedRoomId(roomId)
+				})
+				.catch(alert)
+		}
+	}, [chatRoomId])
 
 	return (
 		<>
@@ -29,6 +43,8 @@ const ChatRoom = ({ userName }) => {
 					}}
 				/>
 			)}
+			{generatedRoomId && <Redirect to={`/chatroom/${generatedRoomId}`} />}
+
 			<Box display="flex" justifyContent="space-between" pb={3}>
 				<Box width="25%">
 					<Typography variant="h5" gutterBottom className={classes.text}>
