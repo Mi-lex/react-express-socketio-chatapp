@@ -23,6 +23,8 @@ app.chatRooms = Array(CHAT_ROOM_AMOUNT)
 	.fill(null)
 	.map((_) => generateId())
 
+app.users = []
+
 app.server.listen(process.env.PORT || PORT, () => {
 	console.log(`App is running on port ${app.server.address().port}`)
 })
