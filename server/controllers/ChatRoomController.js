@@ -1,4 +1,5 @@
 const getRandomArrayElement = require('../utils').getRandomArrayElement
+const moment = require('moment')
 
 class ChatRoomController {
 	constructor(app) {
@@ -9,6 +10,101 @@ class ChatRoomController {
 
 	getRandom(_, res) {
 		res.json({ roomId: getRandomArrayElement(this.app.chatRooms) })
+	}
+
+	join(socket) {
+		return ({ name, room }, callback) => {
+			const { error, user } = this.addUser({ id: socket.id, name, room })
+
+			if (error) return callback(error)
+
+			socket.join(user.room)
+
+			socket.emit(
+				'message',
+				this.createMessage({
+					user: 'admin',
+					text: `${user.name}, welcome to room ${user.room}.`,
+				}),
+			)
+
+			socket.broadcast.to(user.room).emit(
+				'message',
+				this.createMessage({
+					user: 'admin',
+					text: `${user.name} has joined!`,
+				}),
+			)
+
+			this.app.io.to(user.room).emit('roomData', {
+				users: this.getUsersInRoom(user.room),
+			})
+
+			callback()
+		}
+	}
+
+	disconnect(socket) {
+		return () => {
+			const user = this.removeUser(socket.id)
+
+			if (user) {
+				this.app.io.to(user.room).emit(
+					'message',
+					this.createMessage({
+						user: 'Admin',
+						text: `${user.name} has left.`,
+					}),
+				)
+				this.app.io.to(user.room).emit('roomData', {
+					room: user.room,
+					users: this.getUsersInRoom(user.room),
+				})
+			}
+		}
+	}
+
+	addUser({ id, name, room }) {
+		if (!name || !room) return { error: 'Username and room are required.' }
+
+		name = name.trim().toLowerCase()
+		room = room.trim().toLowerCase()
+
+		const roomExist = this.app.chatRooms.includes(room)
+
+		if (!roomExist)
+			return { error: `Room: ${room} does not exist on the server` }
+
+		const existingUser = this.app.users.find(
+			(user) => user.room === room && user.name === name,
+		)
+
+		if (existingUser)
+			return { error: `Username: ${existingUser.name} is taken in that room.` }
+
+		const user = { id, name, room }
+
+		this.app.users.push(user)
+
+		return { user }
+	}
+
+	removeUser(id) {
+		const index = this.app.users.findIndex((user) => user.id === id)
+
+		return ~index ? this.app.users.splice(index, 1)[0] : null
+	}
+
+	getUsersInRoom(room) {
+		return this.app.users.filter((user) => user.room === room)
+	}
+
+	createMessage({ user, text }) {
+		return {
+			user,
+			text,
+			date: moment().format('DD.MM HH:mm:ss'),
+		}
 	}
 }
 
