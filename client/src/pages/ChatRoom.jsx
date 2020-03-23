@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import api from '../services'
+import api, { baseUrl } from '../services'
 import { Redirect, useParams } from 'react-router-dom'
 import { Box, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import MessageList from '../components/MessageList'
 import UserList from '../components/UserList'
 import MessageInput from '../components/MessageInput'
+import io from 'socket.io-client'
 
 const useStyles = makeStyles((theme) => ({
 	text: {
@@ -15,23 +16,48 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const ChatRoom = ({ userName }) => {
+	const { chatRoomId: paramRoomId } = useParams()
+	const [roomId, setRoomId] = useState(paramRoomId)
 	const [users, setUsers] = useState([])
 	const [messages, setMessages] = useState([])
-	const [generatedRoomId, setGeneratedRoomId] = useState('')
-	const { chatRoomId } = useParams()
+
+	const socket = io(baseUrl)
+
 	const classes = useStyles()
 
 	useEffect(() => {
-		if (!chatRoomId) {
+		// if room is not specified in url, get random room
+		if (!roomId) {
 			api
 				.get('chatrooms/random')
 				.then((response) => {
 					const { roomId } = response.data
-					setGeneratedRoomId(roomId)
+					setRoomId(roomId)
 				})
 				.catch(alert)
+		} else if (roomId && userName) {
+			socket.emit('join', { name: userName, room: roomId }, (error) => {
+				if (error) {
+					alert(error)
+				}
+			})
+
+			// subscriptions
+			socket.on('message', (message) => {
+				setMessages((messages) => [...messages, message])
+			})
+
+			socket.on('roomData', ({ users }) => {
+				setUsers(users)
+			})
 		}
-	}, [chatRoomId])
+
+		return () => {
+			if (socket) {
+				socket.close()
+			}
+		}
+	}, [roomId, userName])
 
 	return (
 		<>
@@ -39,11 +65,11 @@ const ChatRoom = ({ userName }) => {
 				<Redirect
 					to={{
 						pathname: '/',
-						state: { chatRoomId },
+						state: { roomId },
 					}}
 				/>
 			)}
-			{generatedRoomId && <Redirect to={`/chatroom/${generatedRoomId}`} />}
+			{userName && roomId && <Redirect to={`/chatroom/${roomId}`} />}
 
 			<Box display="flex" justifyContent="space-between" pb={3}>
 				<Box width="25%">

@@ -5,7 +5,7 @@ import { Typography, Box, TextField } from '@material-ui/core'
 
 const Home = ({ userName, setUserName }) => {
 	const location = useLocation()
-	const { chatRoomId = '' } = location.state || { chatRoomId: '' }
+	const { roomId = '' } = location.state || { roomId: '' }
 
 	const onEnterPressHandler = (event) => {
 		if (event.key === 'Enter') {
@@ -22,7 +22,7 @@ const Home = ({ userName, setUserName }) => {
 
 	return (
 		<>
-			{userName && <Redirect to={`/chatroom/${chatRoomId}`} />}
+			{userName && <Redirect to={`/chatroom/${roomId}`} />}
 			<Box height="80vh" pt={4}>
 				<Typography variant="h2" align="center">
 					Welcome to the chat

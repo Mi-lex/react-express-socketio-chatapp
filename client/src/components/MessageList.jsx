@@ -19,15 +19,15 @@ const MessageList = ({ messages, userName }) => {
 	return (
 		<Box className={classes.messagesBlock}>
 			<List className={classes.list}>
-				{messages.map(({ id, text, date, from }) => {
-					const isMessageMine = from === userName
+				{messages.map(({ text, date, user }) => {
+					const isMessageMine = user === userName
 
 					return (
-						<React.Fragment key={id}>
+						<React.Fragment key={date}>
 							<ListItem divider>
 								<ListItemText
 									primary={text}
-									secondary={`${date} from ${isMessageMine ? 'you' : from}`}
+									secondary={`${date} from ${isMessageMine ? 'you' : user}`}
 									className={isMessageMine ? classes.myMessage : ''}
 								/>
 							</ListItem>
@@ -42,9 +42,8 @@ const MessageList = ({ messages, userName }) => {
 MessageList.propTypes = {
 	messages: PropTypes.arrayOf(
 		PropTypes.shape({
-			id: PropTypes.number,
 			text: PropTypes.string,
-			from: PropTypes.string,
+			user: PropTypes.string,
 			date: PropTypes.string,
 		}),
 	),
