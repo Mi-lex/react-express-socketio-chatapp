@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles((theme) => ({
 	messagesBlock: {
-		height: '70vh',
+		height: '65vh',
 		overflowY: 'scroll',
 	},
 	myMessage: {
