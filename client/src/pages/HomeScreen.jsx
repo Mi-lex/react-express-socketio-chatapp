@@ -17,7 +17,6 @@ const Home = ({ userName, setUserName }) => {
 				name = name.trim().toLowerCase()
 
 				setUserName(name)
-				localStorage.setItem('userName', name)
 			}
 		}
 	}

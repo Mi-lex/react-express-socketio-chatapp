@@ -24,7 +24,6 @@ const PageHeader = ({ userName, setUserName }) => {
 	const classes = useStyles()
 
 	const resetUserName = () => {
-		localStorage.setItem('userName', '')
 		setUserName('')
 	}
 

@@ -10,14 +10,19 @@ const App = () => {
 		localStorage.getItem('userName') || '',
 	)
 
+	const changeUsername = (name) => {
+		setUserName(name)
+		localStorage.setItem('userName', name)
+	}
+
 	return (
 		<Router>
 			<Container>
 				<Paper>
-					<PageHeader userName={userName} setUserName={setUserName} />
+					<PageHeader userName={userName} setUserName={changeUsername} />
 					<Switch>
 						<Route path="/" exact>
-							<HomeScreen userName={userName} setUserName={setUserName} />
+							<HomeScreen userName={userName} setUserName={changeUsername} />
 						</Route>
 						<Route path="/chatroom/:chatRoomId?">
 							<ChatRoom userName={userName} />
