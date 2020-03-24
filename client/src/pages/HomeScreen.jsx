@@ -11,7 +11,7 @@ const Home = ({ userName, setUserName }) => {
 		if (event.key === 'Enter') {
 			event.preventDefault()
 
-			const name = event.target.value
+			let name = event.target.value
 
 			if (name) {
 				name = name.trim().toLowerCase()
