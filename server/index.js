@@ -16,8 +16,8 @@ app.io = socketio(server)
 
 app.use(cors())
 
-const controllers = new Controllers(app)
-app.routers = new AppRouter(app, controllers)
+app.controllers = new Controllers(app)
+app.routers = new AppRouter(app)
 
 app.chatRooms = Array(CHAT_ROOM_AMOUNT)
 	.fill(null)

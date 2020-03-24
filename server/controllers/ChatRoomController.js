@@ -1,10 +1,9 @@
 const getRandomArrayElement = require('../utils').getRandomArrayElement
-const moment = require('moment')
+const createMessage = require('./MessageController').createMessage
 
 class ChatRoomController {
 	constructor(app) {
 		this.app = app
-
 		this.getRandom = this.getRandom.bind(this)
 	}
 
@@ -13,16 +12,19 @@ class ChatRoomController {
 	}
 
 	join(socket) {
-		return ({ name, room }, callback) => {
+		return ({ name, room }) => {
 			const { error, user } = this.addUser({ id: socket.id, name, room })
 
-			if (error) return callback(error)
+			if (error) {
+				socket.emit('err', error)
+				return
+			}
 
 			socket.join(user.room)
 
 			socket.emit(
 				'message',
-				this.createMessage({
+				createMessage({
 					user: 'admin',
 					text: `${user.name}, welcome to room ${user.room}.`,
 				}),
@@ -30,7 +32,7 @@ class ChatRoomController {
 
 			socket.broadcast.to(user.room).emit(
 				'message',
-				this.createMessage({
+				createMessage({
 					user: 'admin',
 					text: `${user.name} has joined!`,
 				}),
@@ -39,8 +41,6 @@ class ChatRoomController {
 			this.app.io.to(user.room).emit('roomData', {
 				users: this.getUsersInRoom(user.room),
 			})
-
-			callback()
 		}
 	}
 
@@ -51,7 +51,7 @@ class ChatRoomController {
 			if (user) {
 				this.app.io.to(user.room).emit(
 					'message',
-					this.createMessage({
+					createMessage({
 						user: 'Admin',
 						text: `${user.name} has left.`,
 					}),
@@ -97,14 +97,6 @@ class ChatRoomController {
 
 	getUsersInRoom(room) {
 		return this.app.users.filter((user) => user.room === room)
-	}
-
-	createMessage({ user, text }) {
-		return {
-			user,
-			text,
-			date: moment().format('DD.MM HH:mm:ss'),
-		}
 	}
 }
 
