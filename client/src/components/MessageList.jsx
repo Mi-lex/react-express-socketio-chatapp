@@ -13,27 +13,28 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 
-const MessageList = ({ messages, userName }) => {
+const MessageList = ({ messages, refValue }) => {
 	const classes = useStyles()
 
 	return (
 		<Box className={classes.messagesBlock}>
 			<List className={classes.list}>
 				{messages.map(({ text, date, user }) => {
-					const isMessageMine = user === userName
+					const isMessageMine = user === 'you'
 
 					return (
 						<React.Fragment key={date}>
 							<ListItem divider>
 								<ListItemText
 									primary={text}
-									secondary={`${date} from ${isMessageMine ? 'you' : user}`}
+									secondary={`${date} from ${user}`}
 									className={isMessageMine ? classes.myMessage : ''}
 								/>
 							</ListItem>
 						</React.Fragment>
 					)
 				})}
+				<div ref={refValue} />
 			</List>
 		</Box>
 	)
@@ -47,7 +48,6 @@ MessageList.propTypes = {
 			date: PropTypes.string,
 		}),
 	),
-	userName: PropTypes.string.isRequired,
 }
 
 MessageList.defaultProps = {

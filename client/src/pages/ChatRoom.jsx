@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import api, { baseUrl } from '../services'
 import { Redirect, useParams } from 'react-router-dom'
@@ -15,14 +15,14 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 
+const socket = io(baseUrl)
+
 const ChatRoom = ({ userName }) => {
 	const { chatRoomId: paramRoomId } = useParams()
 	const [roomId, setRoomId] = useState(paramRoomId)
 	const [users, setUsers] = useState([])
 	const [messages, setMessages] = useState([])
-
-	const socket = io(baseUrl)
-
+	const messageEndRef = useRef(null)
 	const classes = useStyles()
 
 	useEffect(() => {
@@ -36,15 +36,16 @@ const ChatRoom = ({ userName }) => {
 				})
 				.catch(alert)
 		} else if (roomId && userName) {
-			socket.emit('join', { name: userName, room: roomId }, (error) => {
-				if (error) {
-					alert(error)
-				}
-			})
+			socket.connect()
+			socket.emit('join', { name: userName, room: roomId })
 
 			// subscriptions
 			socket.on('message', (message) => {
 				setMessages((messages) => [...messages, message])
+			})
+
+			socket.on('err', (error) => {
+				alert(error)
 			})
 
 			socket.on('roomData', ({ users }) => {
@@ -53,11 +54,17 @@ const ChatRoom = ({ userName }) => {
 		}
 
 		return () => {
-			if (socket) {
-				socket.close()
-			}
+			socket.close()
 		}
 	}, [roomId, userName])
+
+	useEffect(() => {
+		messageEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+	}, [messages])
+
+	const sendMessage = (message) => {
+		socket.emit('chat message', message)
+	}
 
 	return (
 		<>
@@ -69,7 +76,9 @@ const ChatRoom = ({ userName }) => {
 					}}
 				/>
 			)}
-			{userName && roomId && <Redirect to={`/chatroom/${roomId}`} />}
+			{userName && !paramRoomId && roomId && (
+				<Redirect to={`/chatroom/${roomId}`} />
+			)}
 
 			<Box display="flex" justifyContent="space-between" pb={3}>
 				<Box width="25%">
@@ -82,8 +91,12 @@ const ChatRoom = ({ userName }) => {
 					<Typography variant="h5" gutterBottom className={classes.text}>
 						Messages
 					</Typography>
-					<MessageList messages={messages} userName={userName} />
-					<MessageInput />
+					<MessageList
+						messages={messages}
+						userName={userName}
+						refValue={messageEndRef}
+					/>
+					<MessageInput sendMessage={sendMessage} />
 				</Box>
 			</Box>
 		</>

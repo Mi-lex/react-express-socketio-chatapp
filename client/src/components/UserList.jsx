@@ -15,8 +15,8 @@ const UserList = ({ users }) => {
 			{users.map(({ id, name }) => (
 				<React.Fragment key={id}>
 					<ListItem>
-						<ListItemIcon>
-							<FaceIcon />
+						<ListItemIcon style={{ color: '#2ecc71' }}>
+							<FaceIcon color="inherit" />
 						</ListItemIcon>
 						<ListItemText primary={name} />
 					</ListItem>
@@ -30,7 +30,7 @@ const UserList = ({ users }) => {
 UserList.propTypes = {
 	users: PropTypes.arrayOf(
 		PropTypes.shape({
-			id: PropTypes.number,
+			id: PropTypes.string,
 			name: PropTypes.string,
 		}),
 	),
