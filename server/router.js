@@ -1,13 +1,10 @@
 class Router {
 	constructor(app, controllers) {
 		this.app = app
-		this.controllers = this.app.controllers
-
-		this._setup = this._setup.bind(this)
-		this._setup()
+		this.controllers = controllers
 	}
 
-	_setup() {
+	setup() {
 		this.app.get('/chatrooms/random', this.controllers.chatRoom.getRandom)
 
 		this.app.io.on('connect', (socket) => {

@@ -9,7 +9,7 @@ class MessageController {
 		return (message) => {
 			const { name, room } = this.app.users.find(({ id }) => id === socket.id)
 
-			const chatMessage = this.constructor.createMessage({
+			const chatMessage = MessageController.createMessage({
 				text: message,
 				user: name,
 			})
