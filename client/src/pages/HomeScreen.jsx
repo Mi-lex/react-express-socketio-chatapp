@@ -14,6 +14,8 @@ const Home = ({ userName, setUserName }) => {
 			const name = event.target.value
 
 			if (name) {
+				name = name.trim().toLowerCase()
+
 				setUserName(name)
 				localStorage.setItem('userName', name)
 			}
