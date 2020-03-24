@@ -53,11 +53,13 @@ const ChatRoom = ({ userName }) => {
 			})
 		}
 
+		// cleanup
 		return () => {
 			socket.close()
 		}
 	}, [roomId, userName])
 
+	// scroll to the bottom on every message
 	useEffect(() => {
 		messageEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
 	}, [messages])
@@ -68,6 +70,9 @@ const ChatRoom = ({ userName }) => {
 
 	return (
 		<>
+			{/* if there is no username in the state, redirect to the home page,
+			and save intended roomId
+		*/}
 			{!userName && (
 				<Redirect
 					to={{
@@ -76,6 +81,7 @@ const ChatRoom = ({ userName }) => {
 					}}
 				/>
 			)}
+			{/* if room id is not specified in url as param and we got random roomId, redirect */}
 			{userName && !paramRoomId && roomId && (
 				<Redirect to={`/chatroom/${roomId}`} />
 			)}
@@ -85,7 +91,7 @@ const ChatRoom = ({ userName }) => {
 					<Typography variant="h5" gutterBottom className={classes.text}>
 						Users
 					</Typography>
-					<UserList users={users} />
+					<UserList users={users} userName={userName} />
 				</Box>
 				<Box width="70%">
 					<Typography variant="h5" gutterBottom className={classes.text}>
